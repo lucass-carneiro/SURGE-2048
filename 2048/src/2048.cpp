@@ -12,10 +12,9 @@
 
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/glm.hpp>
 
 namespace globals {
-
-static GLuint text_shader{0}; // NOLINT
 
 static s2048::tdb_t tdb{};      // NOLINT
 static s2048::pvubo_t pv_ubo{}; // NOLINT
@@ -73,17 +72,23 @@ extern "C" SURGE_MODULE_EXPORT auto on_load(GLFWwindow *window) noexcept -> int 
     return static_cast<int>(error::freetype_null_face);
   }
 
-  const auto gc_result{text::glyph_cache::create(*face)};
-  if (!gc_result) {
-    log_error("Unable to create glyph cache for daveau_regular");
-    return static_cast<int>(gc_result.error());
+  const auto glyph_cache{text::glyph_cache::create(*face)};
+  if (!glyph_cache) {
+    log_error("Unable to create glyph cache for clear_sans");
+    return static_cast<int>(glyph_cache.error());
   }
 
-  globals::txd.gc = *gc_result;
+  globals::txd.gc = *glyph_cache;
   globals::txd.gc.make_resident();
 
   // Text Buffer
-  globals::txd.txb = surge::atom::text::text_buffer::create(540);
+  const auto text_buffer{surge::atom::text::text_buffer::create(540)};
+  if (!text_buffer) {
+    log_error("Unable to create text buffer");
+    return static_cast<int>(text_buffer.error());
+  }
+  globals::txd.txb = *text_buffer;
+  globals::txd.draw_color = glm::vec4{119.0f / 255.0f, 110.0f / 255.0f, 101.0f / 255.0f, 1.0f};
 
   // Initialize global 2D projection matrix and view matrix
   const auto [ww, wh] = surge::window::get_dims(window);
@@ -94,14 +99,6 @@ extern "C" SURGE_MODULE_EXPORT auto on_load(GLFWwindow *window) noexcept -> int 
   // PV UBO
   globals::pv_ubo = pv_ubo::buffer::create();
   globals::pv_ubo.update_all(&projection, &view);
-
-  // Text shader
-  const auto text_shader{
-      surge::renderer::create_shader_program("shaders/text.vert", "shaders/text.frag")};
-  if (!text_shader) {
-    return static_cast<int>(text_shader.error());
-  }
-  globals::text_shader = *text_shader;
 
   // First state
   s2048::board::load(window, globals::tdb, globals::sdb);
@@ -116,8 +113,6 @@ extern "C" SURGE_MODULE_EXPORT auto on_load(GLFWwindow *window) noexcept -> int 
 
 extern "C" SURGE_MODULE_EXPORT auto on_unload(GLFWwindow *window) noexcept -> int {
   s2048::board::unload(globals::tdb, globals::sdb);
-
-  surge::renderer::destroy_shader_program(globals::text_shader);
 
   globals::txd.txb.destroy();
   globals::txd.gc.destroy();
@@ -145,7 +140,7 @@ extern "C" SURGE_MODULE_EXPORT auto on_unload(GLFWwindow *window) noexcept -> in
 extern "C" SURGE_MODULE_EXPORT auto draw(GLFWwindow *window) noexcept -> int {
   globals::pv_ubo.bind_to_location(2);
 
-  s2048::board::draw(globals::sdb);
+  s2048::board::draw(globals::sdb, globals::txd);
 
   // Debug UI pass
 #ifdef SURGE_BUILD_TYPE_Debug
@@ -156,7 +151,7 @@ extern "C" SURGE_MODULE_EXPORT auto draw(GLFWwindow *window) noexcept -> int {
 }
 
 extern "C" SURGE_MODULE_EXPORT auto update(GLFWwindow *window, double dt) noexcept -> int {
-  s2048::board::update(dt, window, globals::tdb, globals::sdb);
+  s2048::board::update(dt, window, globals::tdb, globals::sdb, globals::txd);
 
   return 0;
 }

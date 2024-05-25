@@ -3,6 +3,8 @@
 #include "player/window.hpp"
 #include "ui.hpp"
 
+#include <array>
+
 auto s2048::board::load(GLFWwindow *, tdb_t &tdb, sdb_t &sdb) noexcept
     -> std::optional<surge::error> {
 
@@ -31,11 +33,17 @@ auto s2048::board::unload(tdb_t &tdb, sdb_t &sdb) noexcept -> std::optional<surg
   return {};
 }
 
-void s2048::board::update(double, GLFWwindow *window, const tdb_t &tdb, sdb_t &sdb) noexcept {
+void s2048::board::update(double, GLFWwindow *window, const tdb_t &tdb, sdb_t &sdb,
+                          txd_t &txd) noexcept {
+  using std::snprintf;
   using namespace surge;
   using namespace surge::atom;
 
   sdb.reset();
+  txd.txb.reset();
+
+  static u16 score{0};
+  static u16 best{0};
 
   // Texture handles
   static const auto bckg_handle{tdb.find("resources/board.png").value_or(0)};
@@ -54,8 +62,24 @@ void s2048::board::update(double, GLFWwindow *window, const tdb_t &tdb, sdb_t &s
   s2048::ui::draw_data dd{glm::vec2{358.0f, 66.0f}, glm::vec2{138.0f, 40.0f}, 0.2f, 1.0f};
   s2048::ui::button_skin skins{new_game_release, new_game_release, new_game_press};
   if (s2048::ui::button(__COUNTER__, uist, dd, sdb, skins)) {
-    log_info("Reset game points");
+    if (score > best) {
+      best = score;
+    }
+    score = 0;
   }
+
+  // Score
+  std::array<char, 5> score_buffer{};
+  std::fill(score_buffer.begin(), score_buffer.end(), 0);
+  snprintf(score_buffer.data(), score_buffer.size(), "%u", score);
+  txd.txb.push(glm::vec3{360.0f, 48.0f, 0.2f}, glm::vec2{0.15f}, txd.gc, score_buffer.data());
+
+  std::fill(score_buffer.begin(), score_buffer.end(), 0);
+  snprintf(score_buffer.data(), score_buffer.size(), "%u", score);
+  txd.txb.push(glm::vec3{432.0f, 48.0f, 0.2f}, glm::vec2{0.15f}, txd.gc, score_buffer.data());
 }
 
-void s2048::board::draw(sdb_t &sdb) noexcept { sdb.draw(); }
+void s2048::board::draw(sdb_t &sdb, txd_t &txd) noexcept {
+  sdb.draw();
+  txd.txb.draw(txd.draw_color);
+}
