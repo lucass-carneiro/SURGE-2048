@@ -19,12 +19,14 @@ set(
   "${PROJECT_SOURCE_DIR}/include/2048.hpp"
   "${PROJECT_SOURCE_DIR}/include/board.hpp"
   "${PROJECT_SOURCE_DIR}/include/type_aliases.hpp"
+  "${PROJECT_SOURCE_DIR}/include/ui.hpp"
 )
 
 set(
   SURGE_MODULE_2048_SOURCE_LIST
   "${PROJECT_SOURCE_DIR}/src/2048.cpp"
   "${PROJECT_SOURCE_DIR}/src/board.cpp"
+  "${PROJECT_SOURCE_DIR}/src/ui.cpp"
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
