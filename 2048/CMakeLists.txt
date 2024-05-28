@@ -26,6 +26,7 @@ set(
   SURGE_MODULE_2048_SOURCE_LIST
   "${PROJECT_SOURCE_DIR}/src/2048.cpp"
   "${PROJECT_SOURCE_DIR}/src/board.cpp"
+  "${PROJECT_SOURCE_DIR}/src/conversions.cpp"
   "${PROJECT_SOURCE_DIR}/src/ui.cpp"
 )
 
