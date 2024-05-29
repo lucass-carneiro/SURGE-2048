@@ -17,7 +17,7 @@ project(
 set(
   SURGE_MODULE_2048_HEADER_LIST
   "${PROJECT_SOURCE_DIR}/include/2048.hpp"
-  "${PROJECT_SOURCE_DIR}/include/board.hpp"
+  "${PROJECT_SOURCE_DIR}/include/pieces.hpp"
   "${PROJECT_SOURCE_DIR}/include/type_aliases.hpp"
   "${PROJECT_SOURCE_DIR}/include/ui.hpp"
 )
@@ -25,8 +25,7 @@ set(
 set(
   SURGE_MODULE_2048_SOURCE_LIST
   "${PROJECT_SOURCE_DIR}/src/2048.cpp"
-  "${PROJECT_SOURCE_DIR}/src/board.cpp"
-  "${PROJECT_SOURCE_DIR}/src/conversions.cpp"
+  "${PROJECT_SOURCE_DIR}/src/pieces.cpp"
   "${PROJECT_SOURCE_DIR}/src/ui.cpp"
 )
 
@@ -172,6 +171,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
       -Wswitch-enum
       -Wshift-sign-overflow
       -Wloop-analysis
+      -Wno-switch-enum
     )
     target_link_options(Surge2048 PUBLIC -Og -g3 -ggdb3)
   else()

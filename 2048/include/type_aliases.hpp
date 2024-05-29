@@ -17,7 +17,6 @@ struct txd_t {
   surge::atom::text::text_engine ten{};
   surge::atom::text::glyph_cache gc{};
   surge::atom::text::text_buffer txb{};
-  glm::vec4 draw_color{1.0f};
 };
 
 } // namespace s2048

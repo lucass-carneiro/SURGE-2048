@@ -3,6 +3,7 @@
 
 // clang-format off
 #include "player/options.hpp"
+#include "player/container_types.hpp"
 #include "player/gl_includes.hpp"
 // clang-format on
 
@@ -17,6 +18,25 @@
 #endif
 
 namespace s2048 {
+
+using state_code_t = surge::u8;
+enum game_state : state_code_t {
+  idle = 0,
+  compress_up = 1,
+  compress_down = 2,
+  compress_left = 3,
+  compress_right = 4,
+  merge_up = 5,
+  merge_down = 6,
+  merge_left = 7,
+  merge_right = 8,
+  piece_removal = 9,
+  add_piece = 10
+};
+
+using state_queue = surge::deque<game_state>;
+
+void new_game() noexcept;
 
 // Callbacks
 auto bind_callbacks(GLFWwindow *window) noexcept -> int;
