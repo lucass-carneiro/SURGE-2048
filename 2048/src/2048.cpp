@@ -69,22 +69,22 @@ extern "C" SURGE_MODULE_EXPORT auto on_load(GLFWwindow *window) noexcept -> int 
   }
 
   const auto load_face_result{
-      globals::txd.ten.load_face("resources/ClearSans-Bold.ttf", "clear_sans")};
+      globals::txd.ten.load_face("resources/dejavu_sans_bold.ttf", "dejavu_sans_bold")};
   if (load_face_result.has_value()) {
-    log_error("Unable to load resources/ClearSans-Bold.ttf");
+    log_error("Unable to load resources/dejavu_sans_bold.ttf");
     return static_cast<int>(*load_face_result);
   }
 
   // Glyph Caches
-  const auto face{globals::txd.ten.get_face("clear_sans")};
+  const auto face{globals::txd.ten.get_face("dejavu_sans_bold")};
   if (!face) {
-    log_error("Font clear_sans not found in cache");
+    log_error("Font dejavu_sans_bold not found in cache");
     return static_cast<int>(error::freetype_null_face);
   }
 
   const auto glyph_cache{text::glyph_cache::create(*face)};
   if (!glyph_cache) {
-    log_error("Unable to create glyph cache for clear_sans");
+    log_error("Unable to create glyph cache for dejavu_sans_bold");
     return static_cast<int>(glyph_cache.error());
   }
 
@@ -163,16 +163,16 @@ extern "C" SURGE_MODULE_EXPORT auto on_unload(GLFWwindow *window) noexcept -> in
 
   globals::tdb.destroy();
 
-  // Debug window
-#ifdef SURGE_BUILD_TYPE_Debug
-  s2048::debug_window::destroy();
-#endif
-
   // Unbind callbacks
   const auto unbind_callback_stat{s2048::unbind_callbacks(window)};
   if (unbind_callback_stat != 0) {
     return unbind_callback_stat;
   }
+
+  // Debug window
+#ifdef SURGE_BUILD_TYPE_Debug
+  s2048::debug_window::destroy();
+#endif
 
   return 0;
 }
@@ -182,7 +182,7 @@ extern "C" SURGE_MODULE_EXPORT auto draw(GLFWwindow *window) noexcept -> int {
 
   // Sprite and text pass
   globals::sdb.draw();
-  globals::txd.txb.draw(glm::vec4{119.0f / 255.0f, 110.0f / 255.0f, 101.0f / 255.0f, 1.0f});
+  globals::txd.txb.draw(glm::vec4{1.0f});
 
   // Debug UI pass
 #ifdef SURGE_BUILD_TYPE_Debug
