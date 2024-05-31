@@ -177,7 +177,7 @@ extern "C" SURGE_MODULE_EXPORT auto on_unload(GLFWwindow *window) noexcept -> in
   return 0;
 }
 
-extern "C" SURGE_MODULE_EXPORT auto draw(GLFWwindow *window) noexcept -> int {
+extern "C" SURGE_MODULE_EXPORT auto draw(GLFWwindow *) noexcept -> int {
   globals::pv_ubo.bind_to_location(2);
 
   // Sprite and text pass
@@ -186,7 +186,7 @@ extern "C" SURGE_MODULE_EXPORT auto draw(GLFWwindow *window) noexcept -> int {
 
   // Debug UI pass
 #ifdef SURGE_BUILD_TYPE_Debug
-  s2048::debug_window::draw(globals::show_debug_window, window);
+  // s2048::debug_window::draw(globals::show_debug_window, window);
 #endif
 
   return 0;
@@ -225,17 +225,20 @@ extern "C" SURGE_MODULE_EXPORT auto update(GLFWwindow *window, double) noexcept 
     new_game();
   }
 
-  // Score
+  // Current score value
   std::array<char, 5> score_buffer{};
   std::fill(score_buffer.begin(), score_buffer.end(), 0);
   snprintf(score_buffer.data(), score_buffer.size(), "%u", globals::current_score);
-  globals::txd.txb.push(glm::vec3{360.0f, 48.0f, 0.2f}, glm::vec2{0.15f}, globals::txd.gc,
-                        score_buffer.data());
 
+  globals::txd.txb.push_centered(glm::vec3{358.0f, 58.0f, 0.2f}, 0.25, glm::vec2{64.0f, 37.0f},
+                                 globals::txd.gc, score_buffer.data());
+
+  // Best score value
   std::fill(score_buffer.begin(), score_buffer.end(), 0);
   snprintf(score_buffer.data(), score_buffer.size(), "%u", globals::best_score);
-  globals::txd.txb.push(glm::vec3{432.0f, 48.0f, 0.2f}, glm::vec2{0.15f}, globals::txd.gc,
-                        score_buffer.data());
+
+  globals::txd.txb.push_centered(glm::vec3{432.0f, 58.0f, 0.2f}, 0.25, glm::vec2{64.0f, 37.0f},
+                                 globals::txd.gc, score_buffer.data());
 
   // Game states
   static bool should_add_new_piece{false};
