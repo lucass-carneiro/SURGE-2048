@@ -317,6 +317,13 @@ extern "C" SURGE_MODULE_EXPORT auto update(GLFWwindow *window, double) noexcept 
     }
     break;
 
+  case game_state::check_game_over:
+    if (pieces::idle(globals::pd)) {
+      log_debug("TODO: Check if the game is over");
+      globals::stq.pop_front();
+    }
+    break;
+
   default:
     break;
   }
@@ -344,6 +351,7 @@ extern "C" SURGE_MODULE_EXPORT void keyboard_event(GLFWwindow *, int key, int, i
       globals::stq.push_back(game_state::merge_right);
       globals::stq.push_back(game_state::piece_removal);
       globals::stq.push_back(game_state::add_piece);
+      globals::stq.push_back(game_state::check_game_over);
       globals::stq.push_back(game_state::idle);
 
     } else if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) {
@@ -352,6 +360,7 @@ extern "C" SURGE_MODULE_EXPORT void keyboard_event(GLFWwindow *, int key, int, i
       globals::stq.push_back(game_state::merge_left);
       globals::stq.push_back(game_state::piece_removal);
       globals::stq.push_back(game_state::add_piece);
+      globals::stq.push_back(game_state::check_game_over);
       globals::stq.push_back(game_state::idle);
 
     } else if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
@@ -360,6 +369,7 @@ extern "C" SURGE_MODULE_EXPORT void keyboard_event(GLFWwindow *, int key, int, i
       globals::stq.push_back(game_state::merge_up);
       globals::stq.push_back(game_state::piece_removal);
       globals::stq.push_back(game_state::add_piece);
+      globals::stq.push_back(game_state::check_game_over);
       globals::stq.push_back(game_state::idle);
 
     } else if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) {
@@ -368,6 +378,7 @@ extern "C" SURGE_MODULE_EXPORT void keyboard_event(GLFWwindow *, int key, int, i
       globals::stq.push_back(game_state::merge_down);
       globals::stq.push_back(game_state::piece_removal);
       globals::stq.push_back(game_state::add_piece);
+      globals::stq.push_back(game_state::check_game_over);
       globals::stq.push_back(game_state::idle);
     }
   }

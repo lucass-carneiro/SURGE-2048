@@ -21,17 +21,18 @@ namespace s2048 {
 
 using state_code_t = surge::u8;
 enum game_state : state_code_t {
-  idle = 0,
-  compress_up = 1,
-  compress_down = 2,
-  compress_left = 3,
-  compress_right = 4,
-  merge_up = 5,
-  merge_down = 6,
-  merge_left = 7,
-  merge_right = 8,
-  piece_removal = 9,
-  add_piece = 10
+  idle,
+  compress_up,
+  compress_down,
+  compress_left,
+  compress_right,
+  merge_up,
+  merge_down,
+  merge_left,
+  merge_right,
+  piece_removal,
+  add_piece,
+  check_game_over
 };
 
 using state_queue = surge::deque<game_state>;
