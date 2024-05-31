@@ -177,7 +177,7 @@ extern "C" SURGE_MODULE_EXPORT auto on_unload(GLFWwindow *window) noexcept -> in
   return 0;
 }
 
-extern "C" SURGE_MODULE_EXPORT auto draw(GLFWwindow *) noexcept -> int {
+extern "C" SURGE_MODULE_EXPORT auto draw(GLFWwindow *window) noexcept -> int {
   globals::pv_ubo.bind_to_location(2);
 
   // Sprite and text pass
@@ -186,7 +186,7 @@ extern "C" SURGE_MODULE_EXPORT auto draw(GLFWwindow *) noexcept -> int {
 
   // Debug UI pass
 #ifdef SURGE_BUILD_TYPE_Debug
-  // s2048::debug_window::draw(globals::show_debug_window, window);
+  s2048::debug_window::draw(globals::show_debug_window, window);
 #endif
 
   return 0;
