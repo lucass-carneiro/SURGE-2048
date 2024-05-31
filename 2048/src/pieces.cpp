@@ -110,8 +110,8 @@ auto s2048::pieces::create_random(pieces_data &pd) noexcept -> surge::u8 {
   }
 
   static std::minstd_rand engine{std::random_device{}()};
-  static std::uniform_int_distribution<surge::u8> slot_dist{0, 15};
-  static std::uniform_int_distribution<surge::u8> exp_dist{1, 2};
+  static std::uniform_int_distribution<unsigned short> slot_dist{0, 15};
+  static std::uniform_int_distribution<unsigned short> exp_dist{1, 2};
 
   const auto random_value{static_cast<surge::u8>(1 << exp_dist(engine))};
 
@@ -119,7 +119,7 @@ auto s2048::pieces::create_random(pieces_data &pd) noexcept -> surge::u8 {
   auto random_slot{slot_dist(engine)};
 
   while (has_value(random_slot, slots)) {
-    random_slot = slot_dist(engine);
+    random_slot = static_cast<surge::u8>(slot_dist(engine));
   }
 
   return create_piece(pd, random_value, random_slot);
