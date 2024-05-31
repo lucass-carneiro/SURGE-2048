@@ -138,10 +138,8 @@ extern "C" SURGE_MODULE_EXPORT auto on_load(GLFWwindow *window) noexcept -> int 
   globals::pd.target_slots.reserve(16);
 
   // Create initial pieces
-  // pieces::create_random(globals::pd);
-  // pieces::create_random(globals::pd);
-  pieces::create_piece(globals::pd, 2, 0);
-  pieces::create_piece(globals::pd, 2, 2);
+  pieces::create_random(globals::pd);
+  pieces::create_random(globals::pd);
 
   // Debug window
 #ifdef SURGE_BUILD_TYPE_Debug
