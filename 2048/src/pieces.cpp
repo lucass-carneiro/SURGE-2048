@@ -122,7 +122,7 @@ auto s2048::pieces::create_random(pieces_data &pd) noexcept -> surge::u8 {
     random_slot = static_cast<surge::u8>(slot_dist(engine));
   }
 
-  return create_piece(pd, random_value, random_slot);
+  return create_piece(pd, random_value, static_cast<surge::u8>(random_slot));
 }
 
 auto s2048::pieces::idle(const pieces_data &pd) noexcept -> bool {
