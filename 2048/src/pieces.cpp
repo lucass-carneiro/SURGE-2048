@@ -3,6 +3,7 @@
 #include "player/logging.hpp"
 
 #include <algorithm>
+#include <array>
 #include <random>
 
 #if defined(SURGE_BUILD_TYPE_Profile) && defined(SURGE_ENABLE_TRACY)
@@ -133,13 +134,61 @@ auto s2048::pieces::idle(const pieces_data &pd) noexcept -> bool {
   auto &slots{pd.current_slots};
   auto &target_slots{pd.target_slots};
 
-  for (const auto &s : slots) {
-    if (s.second != target_slots.at(s.first)) {
+  for (const auto &[id, slot] : slots) {
+    if (slot != target_slots.at(id)) {
       return false;
     }
   }
 
   return true;
+}
+
+auto s2048::pieces::game_over(const pieces_data &pd, txd_t &txd) noexcept -> bool {
+  // Reconstruct the board values in a 2D array
+  std::array<std::array<surge::u16, 4>, 4> board_values{
+      {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}};
+
+  for (const auto &[id, slot] : pd.current_slots) {
+    const auto address{deflatten_slot(slot)};
+    board_values[address.row][address.col] = pd.current_values.at(id);
+  }
+
+  // Check if there is a 2048 piece
+  for (const auto r : board_values) {
+    for (const auto c : r) {
+      if (c == 2048) {
+        // TODO: WIN
+        txd.txb.push(glm::vec3{100.0f, 100.0f, 0.5f}, glm::vec2{0.25f}, txd.gc, "You Win!");
+        return true;
+      }
+    }
+  }
+
+  // If the board is full, are there any possible moves?
+  if (pd.current_slots.size() == 16) {
+    // Possible moves
+    std::array<bool, 24> possible_moves{
+        board_values[0][0] == board_values[0][1], board_values[0][0] == board_values[1][0],
+        board_values[0][1] == board_values[0][2], board_values[0][1] == board_values[1][1],
+        board_values[0][2] == board_values[0][3], board_values[0][2] == board_values[1][2],
+        board_values[0][3] == board_values[1][3], board_values[1][0] == board_values[1][1],
+        board_values[1][0] == board_values[2][0], board_values[1][1] == board_values[1][2],
+        board_values[1][1] == board_values[2][1], board_values[1][2] == board_values[1][3],
+        board_values[1][2] == board_values[2][2], board_values[1][3] == board_values[2][3],
+        board_values[2][0] == board_values[2][1], board_values[2][0] == board_values[3][0],
+        board_values[2][1] == board_values[2][2], board_values[2][1] == board_values[3][1],
+        board_values[2][2] == board_values[2][3], board_values[2][2] == board_values[3][2],
+        board_values[2][3] == board_values[3][3], board_values[3][0] == board_values[3][1],
+        board_values[3][1] == board_values[3][2], board_values[3][2] == board_values[3][3]};
+
+    if (!std::any_of(possible_moves.begin(), possible_moves.end(),
+                     [](const bool &b) { return b; })) {
+      // TODO: Loose
+      return true;
+    }
+  }
+
+  return false;
 }
 
 auto s2048::pieces::deflatten_slot(surge::u8 slot) noexcept -> board_address {

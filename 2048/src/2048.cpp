@@ -139,8 +139,9 @@ extern "C" SURGE_MODULE_EXPORT auto on_load(GLFWwindow *window) noexcept -> int 
   globals::pd.target_slots.reserve(16);
 
   // Create initial pieces
-  pieces::create_random(globals::pd);
-  pieces::create_random(globals::pd);
+  // pieces::create_random(globals::pd);
+  pieces::create_piece(globals::pd, 1024, 0);
+  pieces::create_piece(globals::pd, 1024, 1);
 
   // Debug window
 #ifdef SURGE_BUILD_TYPE_Debug
@@ -320,8 +321,9 @@ extern "C" SURGE_MODULE_EXPORT auto update(GLFWwindow *window, double) noexcept 
 
   case game_state::check_game_over:
     if (pieces::idle(globals::pd)) {
-      log_debug("TODO: Check if the game is over");
-      globals::stq.pop_front();
+      if (!pieces::game_over(globals::pd, globals::txd)) {
+        globals::stq.pop_front();
+      }
     }
     break;
 

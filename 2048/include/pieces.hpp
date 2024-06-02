@@ -74,6 +74,8 @@ auto create_random(pieces_data &pd) noexcept -> surge::u8;
 
 auto idle(const pieces_data &pd) noexcept -> bool;
 
+auto game_over(const pieces_data &pd, txd_t &txd) noexcept -> bool;
+
 auto deflatten_slot(surge::u8 slot) noexcept -> board_address;
 auto get_element(const pieces_data &pd, board_element_type type, surge::u16 value) noexcept
     -> board_element;
