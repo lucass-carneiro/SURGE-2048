@@ -143,7 +143,7 @@ auto s2048::pieces::idle(const pieces_data &pd) noexcept -> bool {
   return true;
 }
 
-auto s2048::pieces::game_over(const pieces_data &pd, txd_t &txd) noexcept -> bool {
+auto s2048::pieces::game_over(const pieces_data &pd, int ww, int wh, txd_t &txd) noexcept -> bool {
   // Reconstruct the board values in a 2D array
   std::array<std::array<surge::u16, 4>, 4> board_values{
       {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}};
@@ -157,8 +157,8 @@ auto s2048::pieces::game_over(const pieces_data &pd, txd_t &txd) noexcept -> boo
   for (const auto r : board_values) {
     for (const auto c : r) {
       if (c == 2048) {
-        // TODO: WIN
-        txd.txb.push(glm::vec3{100.0f, 100.0f, 0.5f}, glm::vec2{0.25f}, txd.gc, "You Win!");
+        txd.txb.push_centered(glm::vec3{0.0f, wh, 0.3f}, 0.25, glm::vec2{ww, 500.0f}, txd.gc,
+                              "You Win!");
         return true;
       }
     }
@@ -183,7 +183,8 @@ auto s2048::pieces::game_over(const pieces_data &pd, txd_t &txd) noexcept -> boo
 
     if (!std::any_of(possible_moves.begin(), possible_moves.end(),
                      [](const bool &b) { return b; })) {
-      // TODO: Loose
+      txd.txb.push_centered(glm::vec3{0.0f, wh, 0.3f}, 0.25, glm::vec2{ww, 500.0f}, txd.gc,
+                            "Game Over!");
       return true;
     }
   }
