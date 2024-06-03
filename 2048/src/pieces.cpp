@@ -143,7 +143,8 @@ auto s2048::pieces::idle(const pieces_data &pd) noexcept -> bool {
   return true;
 }
 
-auto s2048::pieces::game_over(const pieces_data &pd, int ww, int wh, txd_t &txd) noexcept -> bool {
+auto s2048::pieces::game_over(const pieces_data &pd, float ww, float wh, txd_t &txd) noexcept
+    -> bool {
   // Reconstruct the board values in a 2D array
   std::array<std::array<surge::u16, 4>, 4> board_values{
       {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}};
