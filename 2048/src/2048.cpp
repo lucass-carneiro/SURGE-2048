@@ -18,19 +18,19 @@
 
 namespace globals {
 
-static s2048::tdb_t tdb{};                    // NOLINT
-static s2048::pvubo_t pv_ubo{};               // NOLINT
-static s2048::sdb_t sdb{};                    // NOLINT
+static s2048::tdb_t tdb{};      // NOLINT
+static s2048::pvubo_t pv_ubo{}; // NOLINT
+static s2048::sdb_t sdb{};      // NOLINT
 
-static s2048::txd_t txd{};                    // NOLINT
+static s2048::txd_t txd{}; // NOLINT
 
 static s2048::pieces::pieces_data pd{};       // NOLINT
 static s2048::pieces::piece_id_queue_t spc{}; // NOLINT
 
-static s2048::state_queue stq{};              // NOLINT
+static s2048::state_queue stq{}; // NOLINT
 
-static surge::u32 current_score{0};           // NOLINT
-static surge::u32 best_score{0};              // NOLINT
+static surge::u32 current_score{0}; // NOLINT
+static surge::u32 best_score{0};    // NOLINT
 
 #ifdef SURGE_BUILD_TYPE_Debug
 static bool show_debug_window{true}; // NOLINT
@@ -185,7 +185,8 @@ extern "C" SURGE_MODULE_EXPORT auto draw(GLFWwindow *window) noexcept -> int {
 
   // Debug UI pass
 #ifdef SURGE_BUILD_TYPE_Debug
-  s2048::debug_window::draw(globals::show_debug_window, window);
+  s2048::debug_window::draw(globals::show_debug_window, window, globals::tdb, globals::sdb,
+                            globals::pd, globals::spc, globals::stq);
 #endif
 
   return 0;
