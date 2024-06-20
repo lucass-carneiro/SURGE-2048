@@ -321,21 +321,73 @@ static void pd_window(bool *open, const s2048::pieces::pieces_data &pd) noexcept
   ImGui::End();
 }
 
-static void spc_window(bool *open, const s2048::pieces::piece_id_queue_t &) noexcept {
-  if (!ImGui::Begin("Piece ID Queue", open, 0)) {
+static void spc_window(bool *open, const s2048::pieces::piece_id_queue_t &spc) noexcept {
+  if (!ImGui::Begin("Stale pieces", open, 0)) {
     // Early out if the window is collapsed, as an optimization.
     ImGui::End();
     return;
   }
 
+  constexpr ImGuiTableFlags flags{ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersV
+                                  | ImGuiTableFlags_BordersH
+                                  | ImGuiTableFlags_HighlightHoveredColumn};
+
+  if (ImGui::BeginTable("spc_table", 2, flags)) {
+    ImGui::TableSetupColumn("Element");
+    ImGui::TableSetupColumn("Stale ID");
+    ImGui::TableHeadersRow();
+
+    for (surge::usize i = 0; const auto &id : spc) {
+      ImGui::TableNextRow();
+      ImGui::TableNextColumn();
+
+      ImGui::Text("%lu", i);
+      ImGui::TableNextColumn();
+
+      ImGui::Text("%u", id);
+
+      i++;
+    }
+
+    ImGui::EndTable();
+  }
+
   ImGui::End();
 }
 
-static void stq_window(bool *open, const s2048::state_queue &) noexcept {
+static void stq_window(bool *open, const s2048::state_queue &stq) noexcept {
   if (!ImGui::Begin("State Queue", open, 0)) {
     // Early out if the window is collapsed, as an optimization.
     ImGui::End();
     return;
+  }
+
+  constexpr ImGuiTableFlags flags{ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersV
+                                  | ImGuiTableFlags_BordersH
+                                  | ImGuiTableFlags_HighlightHoveredColumn};
+
+  if (ImGui::BeginTable("state_table", 3, flags)) {
+    ImGui::TableSetupColumn("Element");
+    ImGui::TableSetupColumn("State ID");
+    ImGui::TableSetupColumn("State Name");
+    ImGui::TableHeadersRow();
+
+    for (surge::usize i = 0; const auto &id : stq) {
+      ImGui::TableNextRow();
+      ImGui::TableNextColumn();
+
+      ImGui::Text("%lu", i);
+      ImGui::TableNextColumn();
+
+      ImGui::Text("%u", id);
+      ImGui::TableNextColumn();
+
+      ImGui::Text("%s", s2048::state_to_str(static_cast<s2048::game_state>(id)));
+
+      i++;
+    }
+
+    ImGui::EndTable();
   }
 
   ImGui::End();
@@ -377,11 +429,11 @@ void s2048::debug_window::main_window(GLFWwindow *window, const tdb_t &tdb, cons
         pd_window_open = true;
       }
 
-      if (ImGui::MenuItem("Piece ID Queue")) {
+      if (ImGui::MenuItem("Stale pieces")) {
         spc_window_open = true;
       }
 
-      if (ImGui::MenuItem("State Queue")) {
+      if (ImGui::MenuItem("State queue")) {
         stq_window_open = true;
       }
 

@@ -35,6 +35,10 @@ enum game_state : state_code_t {
   check_game_over
 };
 
+#ifdef SURGE_BUILD_TYPE_Debug
+auto state_to_str(game_state s) noexcept -> const char *;
+#endif
+
 using state_queue = surge::deque<game_state>;
 
 void new_game() noexcept;

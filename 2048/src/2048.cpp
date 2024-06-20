@@ -485,3 +485,51 @@ auto s2048::unbind_callbacks(GLFWwindow *window) noexcept -> int {
 
   return 0;
 }
+
+/*enum game_state : state_code_t {
+  idle,
+  compress_up,
+  compress_down,
+  compress_left,
+  compress_right,
+  merge_up,
+  merge_down,
+  merge_left,
+  merge_right,
+  piece_removal,
+  add_piece,
+  check_game_over
+};*/
+
+#ifdef SURGE_BUILD_TYPE_Debug
+auto s2048::state_to_str(game_state s) noexcept -> const char * {
+  switch (s) {
+  case idle:
+    return "idle";
+  case compress_up:
+    return "compress_up";
+  case compress_down:
+    return "compress_down";
+  case compress_left:
+    return "compress_left";
+  case compress_right:
+    return "compress_right";
+  case merge_up:
+    return "merge_up";
+  case merge_down:
+    return "merge_down";
+  case merge_left:
+    return "merge_left";
+  case merge_right:
+    return "merge_right";
+  case piece_removal:
+    return "piece_removal";
+  case add_piece:
+    return "add_piece";
+  case check_game_over:
+    return "check_game_over";
+  default:
+    return "unrecognized state";
+  }
+}
+#endif
