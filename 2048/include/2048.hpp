@@ -1,11 +1,7 @@
 #ifndef SURGE_MODULE_2048_HPP
 #define SURGE_MODULE_2048_HPP
 
-// clang-format off
-#include "player/options.hpp"
-#include "player/container_types.hpp"
-#include "player/gl_includes.hpp"
-// clang-format on
+#include "surge_core.hpp"
 
 #if defined(SURGE_COMPILER_Clang) || defined(SURGE_COMPILER_GCC) && COMPILING_SURGE_MODULE_2048
 #  define SURGE_MODULE_EXPORT __attribute__((__visibility__("default")))
@@ -44,19 +40,19 @@ using state_queue = surge::deque<game_state>;
 void new_game() noexcept;
 
 // Callbacks
-auto bind_callbacks(GLFWwindow *window) noexcept -> int;
-auto unbind_callbacks(GLFWwindow *window) noexcept -> int;
+auto bind_callbacks() noexcept -> int;
+auto unbind_callbacks() noexcept -> int;
 
 } // namespace s2048
 
 extern "C" {
-SURGE_MODULE_EXPORT auto on_load(GLFWwindow *window) noexcept -> int;
+SURGE_MODULE_EXPORT auto on_load() noexcept -> int;
 
-SURGE_MODULE_EXPORT auto on_unload(GLFWwindow *window) noexcept -> int;
+SURGE_MODULE_EXPORT auto on_unload() noexcept -> int;
 
-SURGE_MODULE_EXPORT auto draw(GLFWwindow *window) noexcept -> int;
+SURGE_MODULE_EXPORT auto draw() noexcept -> int;
 
-SURGE_MODULE_EXPORT auto update(GLFWwindow *window, double dt) noexcept -> int;
+SURGE_MODULE_EXPORT auto update(double dt) noexcept -> int;
 
 SURGE_MODULE_EXPORT void keyboard_event(GLFWwindow *window, int key, int scancode, int action,
                                         int mods) noexcept;

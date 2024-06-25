@@ -1,11 +1,10 @@
 #ifndef SURGE_MODULE_2048_PIECES
 #define SURGE_MODULE_2048_PIECES
 
-#include "player/container_types.hpp"
+#include "surge_core.hpp"
 #include "type_aliases.hpp"
 
 #include <array>
-#include <glm/matrix.hpp>
 
 namespace s2048::pieces {
 

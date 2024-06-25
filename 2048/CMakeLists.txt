@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.28 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
 # -----------------------------------------
 # Project
@@ -16,36 +16,25 @@ project(
 
 set(
   SURGE_MODULE_2048_HEADER_LIST
-  "${PROJECT_SOURCE_DIR}/include/2048.hpp"
+  "${SurgeCore_SOURCE_DIR}/include/surge_core.hpp"
+
   "${PROJECT_SOURCE_DIR}/include/pieces.hpp"
   "${PROJECT_SOURCE_DIR}/include/type_aliases.hpp"
   "${PROJECT_SOURCE_DIR}/include/ui.hpp"
+  "${PROJECT_SOURCE_DIR}/include/2048.hpp"
 )
 
 set(
   SURGE_MODULE_2048_SOURCE_LIST
-  "${PROJECT_SOURCE_DIR}/src/2048.cpp"
   "${PROJECT_SOURCE_DIR}/src/pieces.cpp"
   "${PROJECT_SOURCE_DIR}/src/ui.cpp"
+  "${PROJECT_SOURCE_DIR}/src/2048.cpp"
 )
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  list(APPEND SURGE_MODULE_2048_HEADER_LIST "${PROJECT_SOURCE_DIR}/include/debug_window.hpp")
-  list(APPEND SURGE_MODULE_2048_SOURCE_LIST "${PROJECT_SOURCE_DIR}/src/debug_window.cpp")
-endif()
-
-# -----------------------------------------
-# Link Target
-# -----------------------------------------
-
-# This target creates links to the player include files in the
-# module source tree. This avoids name conflicts between includes
-
-add_custom_target(
-  link_player_includes
-  ALL
-  COMMAND ${CMAKE_COMMAND} -E create_symlink ${SurgePlayer_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/include/player
-)
+#if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+#  list(APPEND SURGE_MODULE_2048_HEADER_LIST "${PROJECT_SOURCE_DIR}/include/debug_window.hpp")
+#  list(APPEND SURGE_MODULE_2048_SOURCE_LIST "${PROJECT_SOURCE_DIR}/src/debug_window.cpp")
+#endif()
 
 # -----------------------------------------
 # Module Target
@@ -59,6 +48,15 @@ set_target_properties(Surge2048 PROPERTIES PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/
 set_target_properties(Surge2048 PROPERTIES CXX_VISIBILITY_PRESET hidden)
 
 target_compile_definitions(Surge2048 PUBLIC COMPILING_SURGE_MODULE_2048)
+
+target_include_directories(
+  Surge2048 PUBLIC
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
+)
+
+# TODO: Required?
+# target_include_directories(Surge2048 PRIVATE ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include)
 
 # Enables __VA_OPT__ on msvc
 if(SURGE_COMPILER_FLAG_STYLE MATCHES "msvc")
@@ -74,14 +72,6 @@ endif()
 if(SURGE_COMPILER_FLAG_STYLE MATCHES "msvc")
     target_compile_options(Surge2048 PUBLIC /D NOMINMAX)
 endif()
-
-target_include_directories(
-  Surge2048 PUBLIC
-  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
-)
-
-target_include_directories(Surge2048 PRIVATE ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include)
 
 # -----------------------------------------
 # Compilers flags and options
@@ -132,13 +122,8 @@ if(SURGE_ENABLE_FAST_MATH)
   endif()
 endif()
 
-# Dependencies and main program build type must match. If building dependencies static-debug, then /MTd must be used.
-# See the link bellow for further information
-# https://learn.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2012/2kzt1wy3(v=vs.110)?redirectedfrom=MSDN
-
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   message(STATUS "Generating a Debug build system")
-
   if(SURGE_COMPILER_FLAG_STYLE MATCHES "gcc")
     target_compile_options(
       Surge2048
@@ -182,17 +167,11 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_libraries(Surge2048 PUBLIC debuginfod)
   endif()
-
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
   if(SURGE_COMPILER_FLAG_STYLE MATCHES "msvc")
-    message(WARNING ${VCPKG_LIBRARY_LINKAGE})
-    if(VCPKG_TARGET_TRIPLET MATCHES "x64-windows-static") #TODO: This is not general and static releases do not work
-      target_compile_options(Surge2048 PUBLIC /MP /MT)
-    else()
-      target_compile_options(Surge2048 PUBLIC /MP /MD)
-    endif()
+  target_compile_options(Surge2048 PUBLIC /MP /MD)  
   endif()
 endif()
 
@@ -201,7 +180,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Profile")
     target_compile_options(Surge2048 PUBLIC -g3 -ggdb3 -fno-omit-frame-pointer)
     target_link_options(Surge2048 PUBLIC -g3 -ggdb3 -fno-omit-frame-pointer -rdynamic)
   else()
-    target_compile_options(Surge2048 PUBLIC /MP /MD)
+    target_compile_options(Surge2048 PUBLIC /MP /MDd)
     target_link_options(Surge2048 PUBLIC /DEBUG:FULL)
   endif()
 
@@ -213,4 +192,5 @@ endif()
 # -----------------------------------------
 # Link and build order dependencies
 # -----------------------------------------
-target_link_libraries(Surge2048 PUBLIC SurgePlayer)
+
+target_link_libraries(Surge2048 PUBLIC SurgeCore)

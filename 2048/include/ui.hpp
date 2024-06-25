@@ -1,7 +1,7 @@
 #ifndef SURGE_2048_UI_HPP
 #define SURGE_2048_UI_HPP
 
-#include "player/integer_types.hpp"
+#include "surge_core.hpp"
 #include "type_aliases.hpp"
 
 namespace s2048::ui {
@@ -26,7 +26,6 @@ static inline auto point_in_rect(const glm::vec2 &point, const glm::vec4 &rect) 
 }
 
 struct ui_state {
-  GLFWwindow *window;
   surge::i32 active;
   surge::i32 hot;
 };

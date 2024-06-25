@@ -4,33 +4,26 @@
 #include "type_aliases.hpp"
 #include "ui.hpp"
 
-#ifdef SURGE_BUILD_TYPE_Debug
-#  include "debug_window.hpp"
-#endif
-
-#include "player/error_types.hpp"
-#include "player/logging.hpp"
-#include "player/window.hpp"
-
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/glm.hpp>
+// TODO
+// #ifdef SURGE_BUILD_TYPE_Debug
+// #  include "debug_window.hpp"
+// #endif
 
 namespace globals {
 
-static s2048::tdb_t tdb{};      // NOLINT
-static s2048::pvubo_t pv_ubo{}; // NOLINT
-static s2048::sdb_t sdb{};      // NOLINT
+static s2048::tdb_t tdb{};                    // NOLINT
+static s2048::pvubo_t pv_ubo{};               // NOLINT
+static s2048::sdb_t sdb{};                    // NOLINT
 
-static s2048::txd_t txd{}; // NOLINT
+static s2048::txd_t txd{};                    // NOLINT
 
 static s2048::pieces::pieces_data pd{};       // NOLINT
 static s2048::pieces::piece_id_queue_t spc{}; // NOLINT
 
-static s2048::state_queue stq{}; // NOLINT
+static s2048::state_queue stq{};              // NOLINT
 
-static surge::u32 current_score{0}; // NOLINT
-static surge::u32 best_score{0};    // NOLINT
+static surge::u32 current_score{0};           // NOLINT
+static surge::u32 best_score{0};              // NOLINT
 
 #ifdef SURGE_BUILD_TYPE_Debug
 static bool show_debug_window{true}; // NOLINT
@@ -38,13 +31,13 @@ static bool show_debug_window{true}; // NOLINT
 
 } // namespace globals
 
-extern "C" SURGE_MODULE_EXPORT auto on_load(GLFWwindow *window) noexcept -> int {
+extern "C" SURGE_MODULE_EXPORT auto on_load() noexcept -> int {
   using namespace s2048;
   using namespace surge;
-  using namespace surge::atom;
+  using namespace surge::gl_atom;
 
   // Bind callbacks
-  const auto bind_callback_stat{s2048::bind_callbacks(window)};
+  const auto bind_callback_stat{s2048::bind_callbacks()};
   if (bind_callback_stat != 0) {
     return bind_callback_stat;
   }
@@ -61,7 +54,7 @@ extern "C" SURGE_MODULE_EXPORT auto on_load(GLFWwindow *window) noexcept -> int 
   globals::sdb = *sdb;
 
   // Text Engine
-  const auto ten_result{text::text_engine::create()};
+  const auto ten_result{text_engine::create()};
   if (ten_result) {
     globals::txd.ten = *ten_result;
   } else {
@@ -83,7 +76,7 @@ extern "C" SURGE_MODULE_EXPORT auto on_load(GLFWwindow *window) noexcept -> int 
     return static_cast<int>(error::freetype_null_face);
   }
 
-  const auto glyph_cache{text::glyph_cache::create(*face)};
+  const auto glyph_cache{glyph_cache::create(*face)};
   if (!glyph_cache) {
     log_error("Unable to create glyph cache for dejavu_sans_bold");
     return static_cast<int>(glyph_cache.error());
@@ -93,7 +86,7 @@ extern "C" SURGE_MODULE_EXPORT auto on_load(GLFWwindow *window) noexcept -> int 
   globals::txd.gc.make_resident();
 
   // Text Buffer
-  const auto text_buffer{surge::atom::text::text_buffer::create(540)};
+  const auto text_buffer{text_buffer::create(540)};
   if (!text_buffer) {
     log_error("Unable to create text buffer");
     return static_cast<int>(text_buffer.error());
@@ -101,8 +94,8 @@ extern "C" SURGE_MODULE_EXPORT auto on_load(GLFWwindow *window) noexcept -> int 
   globals::txd.txb = *text_buffer;
 
   // Initialize global 2D projection matrix and view matrix
-  const auto [ww, wh] = surge::window::get_dims(window);
-  const auto projection{glm::ortho(0.0f, ww, wh, 0.0f, 0.0f, 1.0f)};
+  const auto dims{window::get_dims()};
+  const auto projection{glm::ortho(0.0f, dims[0], dims[1], 0.0f, 0.0f, 1.0f)};
   const auto view{glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f),
                               glm::vec3(0.0f, 1.0f, 0.0f))};
 
@@ -113,7 +106,7 @@ extern "C" SURGE_MODULE_EXPORT auto on_load(GLFWwindow *window) noexcept -> int 
   // Load game resources
   // All textures
   texture::create_info ci{};
-  ci.filtering = renderer::texture_filtering::anisotropic;
+  ci.filtering = texture::texture_filtering::anisotropic;
   globals::tdb.add(ci, "resources/board.png", "resources/button_press.png",
                    "resources/button_release.png", "resources/pieces_2.png",
                    "resources/pieces_4.png", "resources/pieces_8.png", "resources/pieces_16.png",
@@ -142,15 +135,15 @@ extern "C" SURGE_MODULE_EXPORT auto on_load(GLFWwindow *window) noexcept -> int 
   pieces::create_random(globals::pd);
   pieces::create_random(globals::pd);
 
-  // Debug window
-#ifdef SURGE_BUILD_TYPE_Debug
-  s2048::debug_window::create(window);
-#endif
+  // TODO Debug window
+  // #ifdef SURGE_BUILD_TYPE_Debug
+  //   s2048::debug_window::create();
+  // #endif
 
   return 0;
 }
 
-extern "C" SURGE_MODULE_EXPORT auto on_unload(GLFWwindow *window) noexcept -> int {
+extern "C" SURGE_MODULE_EXPORT auto on_unload() noexcept -> int {
   // TODO
 
   globals::txd.txb.destroy();
@@ -163,40 +156,40 @@ extern "C" SURGE_MODULE_EXPORT auto on_unload(GLFWwindow *window) noexcept -> in
   globals::tdb.destroy();
 
   // Unbind callbacks
-  const auto unbind_callback_stat{s2048::unbind_callbacks(window)};
+  const auto unbind_callback_stat{s2048::unbind_callbacks()};
   if (unbind_callback_stat != 0) {
     return unbind_callback_stat;
   }
 
-  // Debug window
-#ifdef SURGE_BUILD_TYPE_Debug
-  s2048::debug_window::destroy();
-#endif
+  // TODO Debug window
+  // #ifdef SURGE_BUILD_TYPE_Debug
+  //   s2048::debug_window::destroy();
+  // #endif
 
   return 0;
 }
 
-extern "C" SURGE_MODULE_EXPORT auto draw(GLFWwindow *window) noexcept -> int {
+extern "C" SURGE_MODULE_EXPORT auto draw() noexcept -> int {
   globals::pv_ubo.bind_to_location(2);
 
   // Sprite and text pass
   globals::sdb.draw();
   globals::txd.txb.draw(glm::vec4{1.0f});
 
-  // Debug UI pass
-#ifdef SURGE_BUILD_TYPE_Debug
-  s2048::debug_window::draw(globals::show_debug_window, window, globals::tdb, globals::sdb,
-                            globals::pd, globals::spc, globals::stq);
-#endif
+  // TODO Debug UI pass
+  // #ifdef SURGE_BUILD_TYPE_Debug
+  //   s2048::debug_window::draw(globals::show_debug_window, window, globals::tdb, globals::sdb,
+  //                             globals::pd, globals::spc, globals::stq);
+  // #endif
 
   return 0;
 }
 
-extern "C" SURGE_MODULE_EXPORT auto update(GLFWwindow *window, double) noexcept -> int {
+extern "C" SURGE_MODULE_EXPORT auto update(double) noexcept -> int {
   using std::snprintf;
   using namespace surge;
   using namespace s2048;
-  using namespace surge::atom;
+  using namespace surge::gl_atom;
 
   // Database resets
   globals::sdb.reset();
@@ -206,12 +199,12 @@ extern "C" SURGE_MODULE_EXPORT auto update(GLFWwindow *window, double) noexcept 
   static const auto bckg_handle{globals::tdb.find("resources/board.png").value_or(0)};
 
   // Background model
-  const auto [ww, wh] = window::get_dims(window);
-  const auto bckg_model{sprite::place(glm::vec2{0.0f}, glm::vec2{ww, wh}, 0.1f)};
+  const auto dims{window::get_dims()};
+  const auto bckg_model{sprite::place(glm::vec2{0.0f}, dims, 0.1f)};
   globals::sdb.add(bckg_handle, bckg_model, 1.0);
 
   // New Game button
-  static ui::ui_state uist{window, -1, -1};
+  static ui::ui_state uist{-1, -1};
   static const auto new_game_press_handle{
       globals::tdb.find("resources/button_press.png").value_or(0)};
   static const auto new_game_release_handle{
@@ -321,7 +314,7 @@ extern "C" SURGE_MODULE_EXPORT auto update(GLFWwindow *window, double) noexcept 
 
   case game_state::check_game_over:
     if (pieces::idle(globals::pd)) {
-      if (!pieces::game_over(globals::pd, ww, wh, globals::txd)) {
+      if (!pieces::game_over(globals::pd, dims[0], dims[1], globals::txd)) {
         globals::stq.pop_front();
       }
     }
@@ -389,23 +382,25 @@ extern "C" SURGE_MODULE_EXPORT void keyboard_event(GLFWwindow *, int key, int, i
 #ifdef SURGE_BUILD_TYPE_Debug
   if (key == GLFW_KEY_F6 && action == GLFW_RELEASE) {
     globals::show_debug_window = !globals::show_debug_window;
-    log_info("%s debug window", globals::show_debug_window ? "Showing" : "Hiding");
+    log_info("{} debug window", globals::show_debug_window ? "Showing" : "Hiding");
   }
 #endif
 }
 
 extern "C" SURGE_MODULE_EXPORT void mouse_button_event(GLFWwindow *window, int button, int action,
                                                        int mods) noexcept {
-#ifdef SURGE_BUILD_TYPE_Debug
-  ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
-#endif
+  // TODO
+  // #ifdef SURGE_BUILD_TYPE_Debug
+  //  ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+  // #endif
 }
 
 extern "C" SURGE_MODULE_EXPORT void mouse_scroll_event(GLFWwindow *window, double xoffset,
                                                        double yoffset) noexcept {
-#ifdef SURGE_BUILD_TYPE_Debug
-  ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
-#endif
+  // TODO
+  // #ifdef SURGE_BUILD_TYPE_Debug
+  //   ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
+  // #endif
 }
 
 void s2048::new_game() noexcept {
@@ -427,7 +422,7 @@ void s2048::new_game() noexcept {
   }
 
   globals::current_score = 0;
-  log_debug("Best score %hu", globals::best_score);
+  log_debug("Best score {}", globals::best_score);
 
   // Reset piece ID queue
   for (surge::u8 i = 0; i < 16; i++) {
@@ -441,65 +436,60 @@ void s2048::new_game() noexcept {
   pieces::create_random(globals::pd);
 }
 
-auto s2048::bind_callbacks(GLFWwindow *window) noexcept -> int {
+auto s2048::bind_callbacks() noexcept -> int {
+  using namespace surge;
+
   log_info("Binding interaction callbacks");
 
-  glfwSetKeyCallback(window, keyboard_event);
-  if (glfwGetError(nullptr) != GLFW_NO_ERROR) {
-    log_warn("Unable to bind keyboard event callback");
-    return static_cast<int>(surge::error::keyboard_event_unbinding);
+  auto status{window::set_key_callback(keyboard_event)};
+
+  if (status.has_value()) {
+    log_error("Unable to bind keyboard event callback");
+    return static_cast<int>(status.value());
   }
 
-  glfwSetMouseButtonCallback(window, mouse_button_event);
-  if (glfwGetError(nullptr) != GLFW_NO_ERROR) {
-    log_warn("Unable to bind mouse button event callback");
-    return static_cast<int>(surge::error::mouse_button_event_unbinding);
+  status = window::set_mouse_button_callback(mouse_button_event);
+
+  if (status.has_value()) {
+    log_error("Unable to bind mouse button event callback.");
+    return static_cast<int>(status.value());
   }
 
-  glfwSetScrollCallback(window, mouse_scroll_event);
-  if (glfwGetError(nullptr) != GLFW_NO_ERROR) {
-    log_warn("Unable to bind mouse scroll event callback");
-    return static_cast<int>(surge::error::mouse_scroll_event_unbinding);
+  status = window::set_mouse_scroll_callback(mouse_scroll_event);
+
+  if (status.has_value()) {
+    log_error("Unable to bind mouse scroll event callback");
+    return static_cast<int>(status.value());
   }
 
   return 0;
 }
 
-auto s2048::unbind_callbacks(GLFWwindow *window) noexcept -> int {
+auto s2048::unbind_callbacks() noexcept -> int {
+  using namespace surge;
+
   log_info("Unbinding interaction callbacks");
 
-  glfwSetKeyCallback(window, nullptr);
-  if (glfwGetError(nullptr) != GLFW_NO_ERROR) {
-    log_warn("Unable to unbind keyboard event callback");
+  auto status{window::set_key_callback(nullptr)};
+
+  if (status.has_value()) {
+    log_error("Unable to bind keyboard event callback");
   }
 
-  glfwSetMouseButtonCallback(window, nullptr);
-  if (glfwGetError(nullptr) != GLFW_NO_ERROR) {
-    log_warn("Unable to unbind mouse button event callback");
+  status = window::set_mouse_button_callback(nullptr);
+
+  if (status.has_value()) {
+    log_error("Unable to bind mouse button event callback.");
   }
 
-  glfwSetScrollCallback(window, nullptr);
-  if (glfwGetError(nullptr) != GLFW_NO_ERROR) {
-    log_warn("Unable to unbind mouse scroll event callback");
+  status = window::set_mouse_scroll_callback(nullptr);
+
+  if (status.has_value()) {
+    log_error("Unable to bind mouse scroll event callback");
   }
 
   return 0;
 }
-
-/*enum game_state : state_code_t {
-  idle,
-  compress_up,
-  compress_down,
-  compress_left,
-  compress_right,
-  merge_up,
-  merge_down,
-  merge_left,
-  merge_right,
-  piece_removal,
-  add_piece,
-  check_game_over
-};*/
 
 #ifdef SURGE_BUILD_TYPE_Debug
 auto s2048::state_to_str(game_state s) noexcept -> const char * {

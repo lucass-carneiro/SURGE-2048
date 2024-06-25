@@ -1,22 +1,19 @@
 #ifndef SURGE_2048_TYPE_ALIASES_HPP
 #define SURGE_2048_TYPE_ALIASES_HPP
 
-#include "player/pv_ubo.hpp"
-#include "player/sprite.hpp"
-#include "player/text.hpp"
-#include "player/texture.hpp"
+#include "surge_core.hpp"
 
 namespace s2048 {
 
-using pvubo_t = surge::atom::pv_ubo::buffer;
+using pvubo_t = surge::gl_atom::pv_ubo::buffer;
 
-using tdb_t = surge::atom::texture::database;
-using sdb_t = surge::atom::sprite::database;
+using tdb_t = surge::gl_atom::texture::database;
+using sdb_t = surge::gl_atom::sprite::database;
 
 struct txd_t {
-  surge::atom::text::text_engine ten{};
-  surge::atom::text::glyph_cache gc{};
-  surge::atom::text::text_buffer txb{};
+  surge::gl_atom::text_engine ten{};
+  surge::gl_atom::glyph_cache gc{};
+  surge::gl_atom::text_buffer txb{};
 };
 
 } // namespace s2048

@@ -1,7 +1,5 @@
 #include "pieces.hpp"
 
-#include "player/logging.hpp"
-
 #include <algorithm>
 #include <array>
 #include <random>
@@ -68,7 +66,7 @@ void s2048::pieces::delete_piece(pieces_data &pd, surge::u8 piece_id) noexcept {
 #endif
 
   if (std::find(pd.ids.begin(), pd.ids.end(), piece_id) != pd.ids.end()) {
-    log_debug("Unable to remove piece id %u because it is already non existant", piece_id);
+    log_debug("Unable to remove piece id {} because it is already non existant", piece_id);
   } else {
     pd.positions.erase(piece_id);
 
@@ -1007,7 +1005,7 @@ void s2048::pieces::add_sprites_to_database(const tdb_t &tdb, sdb_t &sdb,
   ZoneScopedN("s2048::pieces::add_sprites_to_database()");
 #endif
   using namespace surge;
-  using namespace surge::atom;
+  using namespace surge::gl_atom;
 
   for (const auto &pos_elm : pd.positions) {
     const auto [id, pos] = pos_elm;
