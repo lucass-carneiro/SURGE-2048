@@ -31,10 +31,10 @@ set(
   "${PROJECT_SOURCE_DIR}/src/2048.cpp"
 )
 
-#if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-#  list(APPEND SURGE_MODULE_2048_HEADER_LIST "${PROJECT_SOURCE_DIR}/include/debug_window.hpp")
-#  list(APPEND SURGE_MODULE_2048_SOURCE_LIST "${PROJECT_SOURCE_DIR}/src/debug_window.cpp")
-#endif()
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  list(APPEND SURGE_MODULE_2048_HEADER_LIST "${PROJECT_SOURCE_DIR}/include/debug_window.hpp")
+  list(APPEND SURGE_MODULE_2048_SOURCE_LIST "${PROJECT_SOURCE_DIR}/src/debug_window.cpp")
+endif()
 
 # -----------------------------------------
 # Module Target
@@ -54,9 +54,6 @@ target_include_directories(
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
 )
-
-# TODO: Required?
-# target_include_directories(Surge2048 PRIVATE ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include)
 
 # Enables __VA_OPT__ on msvc
 if(SURGE_COMPILER_FLAG_STYLE MATCHES "msvc")

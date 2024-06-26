@@ -4,10 +4,9 @@
 #include "type_aliases.hpp"
 #include "ui.hpp"
 
-// TODO
-// #ifdef SURGE_BUILD_TYPE_Debug
-// #  include "debug_window.hpp"
-// #endif
+#ifdef SURGE_BUILD_TYPE_Debug
+#  include "debug_window.hpp"
+#endif
 
 namespace globals {
 
@@ -34,7 +33,6 @@ static bool show_debug_window{true}; // NOLINT
 extern "C" SURGE_MODULE_EXPORT auto on_load() noexcept -> int {
   using namespace s2048;
   using namespace surge;
-  using namespace surge::gl_atom;
 
   // Bind callbacks
   const auto bind_callback_stat{s2048::bind_callbacks()};
@@ -43,10 +41,10 @@ extern "C" SURGE_MODULE_EXPORT auto on_load() noexcept -> int {
   }
 
   // Texture database
-  globals::tdb = texture::database::create(128);
+  globals::tdb = gl_atom::texture::database::create(128);
 
   // Sprite database
-  auto sdb{sprite::database::create(128)};
+  auto sdb{gl_atom::sprite::database::create(128)};
   if (!sdb) {
     log_error("Unable to create sprite database");
     return static_cast<int>(sdb.error());
@@ -54,7 +52,7 @@ extern "C" SURGE_MODULE_EXPORT auto on_load() noexcept -> int {
   globals::sdb = *sdb;
 
   // Text Engine
-  const auto ten_result{text_engine::create()};
+  const auto ten_result{gl_atom::text_engine::create()};
   if (ten_result) {
     globals::txd.ten = *ten_result;
   } else {
@@ -76,7 +74,7 @@ extern "C" SURGE_MODULE_EXPORT auto on_load() noexcept -> int {
     return static_cast<int>(error::freetype_null_face);
   }
 
-  const auto glyph_cache{glyph_cache::create(*face)};
+  const auto glyph_cache{gl_atom::glyph_cache::create(*face)};
   if (!glyph_cache) {
     log_error("Unable to create glyph cache for dejavu_sans_bold");
     return static_cast<int>(glyph_cache.error());
@@ -86,7 +84,7 @@ extern "C" SURGE_MODULE_EXPORT auto on_load() noexcept -> int {
   globals::txd.gc.make_resident();
 
   // Text Buffer
-  const auto text_buffer{text_buffer::create(540)};
+  const auto text_buffer{gl_atom::text_buffer::create(540)};
   if (!text_buffer) {
     log_error("Unable to create text buffer");
     return static_cast<int>(text_buffer.error());
@@ -100,13 +98,13 @@ extern "C" SURGE_MODULE_EXPORT auto on_load() noexcept -> int {
                               glm::vec3(0.0f, 1.0f, 0.0f))};
 
   // PV UBO
-  globals::pv_ubo = pv_ubo::buffer::create();
+  globals::pv_ubo = gl_atom::pv_ubo::buffer::create();
   globals::pv_ubo.update_all(&projection, &view);
 
   // Load game resources
   // All textures
-  texture::create_info ci{};
-  ci.filtering = texture::texture_filtering::anisotropic;
+  gl_atom::texture::create_info ci{};
+  ci.filtering = gl_atom::texture::texture_filtering::anisotropic;
   globals::tdb.add(ci, "resources/board.png", "resources/button_press.png",
                    "resources/button_release.png", "resources/pieces_2.png",
                    "resources/pieces_4.png", "resources/pieces_8.png", "resources/pieces_16.png",
@@ -135,16 +133,16 @@ extern "C" SURGE_MODULE_EXPORT auto on_load() noexcept -> int {
   pieces::create_random(globals::pd);
   pieces::create_random(globals::pd);
 
-  // TODO Debug window
-  // #ifdef SURGE_BUILD_TYPE_Debug
-  //   s2048::debug_window::create();
-  // #endif
+  // Debug window
+#ifdef SURGE_BUILD_TYPE_Debug
+  imgui::gl::create(imgui::create_config{});
+#endif
 
   return 0;
 }
 
 extern "C" SURGE_MODULE_EXPORT auto on_unload() noexcept -> int {
-  // TODO
+  using namespace surge;
 
   globals::txd.txb.destroy();
   globals::txd.gc.destroy();
@@ -161,10 +159,10 @@ extern "C" SURGE_MODULE_EXPORT auto on_unload() noexcept -> int {
     return unbind_callback_stat;
   }
 
-  // TODO Debug window
-  // #ifdef SURGE_BUILD_TYPE_Debug
-  //   s2048::debug_window::destroy();
-  // #endif
+  // Debug window
+#ifdef SURGE_BUILD_TYPE_Debug
+  imgui::gl::destroy();
+#endif
 
   return 0;
 }
@@ -176,11 +174,11 @@ extern "C" SURGE_MODULE_EXPORT auto draw() noexcept -> int {
   globals::sdb.draw();
   globals::txd.txb.draw(glm::vec4{1.0f});
 
-  // TODO Debug UI pass
-  // #ifdef SURGE_BUILD_TYPE_Debug
-  //   s2048::debug_window::draw(globals::show_debug_window, window, globals::tdb, globals::sdb,
-  //                             globals::pd, globals::spc, globals::stq);
-  // #endif
+  // Debug UI pass
+#ifdef SURGE_BUILD_TYPE_Debug
+  s2048::debug_window::draw(globals::show_debug_window, globals::tdb, globals::sdb, globals::pd,
+                            globals::spc, globals::stq);
+#endif
 
   return 0;
 }
@@ -387,20 +385,18 @@ extern "C" SURGE_MODULE_EXPORT void keyboard_event(GLFWwindow *, int key, int, i
 #endif
 }
 
-extern "C" SURGE_MODULE_EXPORT void mouse_button_event(GLFWwindow *window, int button, int action,
+extern "C" SURGE_MODULE_EXPORT void mouse_button_event(GLFWwindow *, int button, int action,
                                                        int mods) noexcept {
-  // TODO
-  // #ifdef SURGE_BUILD_TYPE_Debug
-  //  ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
-  // #endif
+#ifdef SURGE_BUILD_TYPE_Debug
+  surge::imgui::register_mouse_callback(button, action, mods);
+#endif
 }
 
-extern "C" SURGE_MODULE_EXPORT void mouse_scroll_event(GLFWwindow *window, double xoffset,
+extern "C" SURGE_MODULE_EXPORT void mouse_scroll_event(GLFWwindow *, double xoffset,
                                                        double yoffset) noexcept {
-  // TODO
-  // #ifdef SURGE_BUILD_TYPE_Debug
-  //   ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
-  // #endif
+#ifdef SURGE_BUILD_TYPE_Debug
+  surge::imgui::register_mouse_scroll_callback(xoffset, yoffset);
+#endif
 }
 
 void s2048::new_game() noexcept {
