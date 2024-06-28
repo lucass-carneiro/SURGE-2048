@@ -38,11 +38,6 @@ auto state_to_str(game_state s) noexcept -> const char *;
 using state_queue = surge::deque<game_state>;
 
 void new_game() noexcept;
-
-// Callbacks
-auto bind_callbacks() noexcept -> int;
-auto unbind_callbacks() noexcept -> int;
-
 } // namespace s2048
 
 extern "C" {
@@ -54,14 +49,9 @@ SURGE_MODULE_EXPORT auto draw() noexcept -> int;
 
 SURGE_MODULE_EXPORT auto update(double dt) noexcept -> int;
 
-SURGE_MODULE_EXPORT void keyboard_event(GLFWwindow *window, int key, int scancode, int action,
-                                        int mods) noexcept;
-
-SURGE_MODULE_EXPORT void mouse_button_event(GLFWwindow *window, int button, int action,
-                                            int mods) noexcept;
-
-SURGE_MODULE_EXPORT void mouse_scroll_event(GLFWwindow *window, double xoffset,
-                                            double yoffset) noexcept;
+SURGE_MODULE_EXPORT void keyboard_event(int key, int scancode, int action, int mods) noexcept;
+SURGE_MODULE_EXPORT void mouse_button_event(int button, int action, int mods) noexcept;
+SURGE_MODULE_EXPORT void mouse_scroll_event(double xoffset, double yoffset) noexcept;
 }
 
 #endif // SURGE_MODULE_2048_HPP

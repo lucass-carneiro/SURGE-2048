@@ -34,12 +34,6 @@ extern "C" SURGE_MODULE_EXPORT auto on_load() noexcept -> int {
   using namespace s2048;
   using namespace surge;
 
-  // Bind callbacks
-  const auto bind_callback_stat{s2048::bind_callbacks()};
-  if (bind_callback_stat != 0) {
-    return bind_callback_stat;
-  }
-
   // Texture database
   globals::tdb = gl_atom::texture::database::create(128);
 
@@ -152,12 +146,6 @@ extern "C" SURGE_MODULE_EXPORT auto on_unload() noexcept -> int {
   globals::sdb.destroy();
 
   globals::tdb.destroy();
-
-  // Unbind callbacks
-  const auto unbind_callback_stat{s2048::unbind_callbacks()};
-  if (unbind_callback_stat != 0) {
-    return unbind_callback_stat;
-  }
 
   // Debug window
 #ifdef SURGE_BUILD_TYPE_Debug
@@ -329,8 +317,7 @@ extern "C" SURGE_MODULE_EXPORT auto update(double) noexcept -> int {
   return 0;
 }
 
-extern "C" SURGE_MODULE_EXPORT void keyboard_event(GLFWwindow *, int key, int, int action,
-                                                   int) noexcept {
+extern "C" SURGE_MODULE_EXPORT void keyboard_event(int key, int, int action, int) noexcept {
 #if defined(SURGE_BUILD_TYPE_Profile) && defined(SURGE_ENABLE_TRACY)
   ZoneScopedN("s2048::keyboard_event");
 #endif
@@ -385,15 +372,14 @@ extern "C" SURGE_MODULE_EXPORT void keyboard_event(GLFWwindow *, int key, int, i
 #endif
 }
 
-extern "C" SURGE_MODULE_EXPORT void mouse_button_event(GLFWwindow *, int button, int action,
-                                                       int mods) noexcept {
+extern "C" SURGE_MODULE_EXPORT void mouse_button_event(int button, int action, int mods) noexcept {
+  log_error("Hello, mouse_button_event");
 #ifdef SURGE_BUILD_TYPE_Debug
   surge::imgui::register_mouse_callback(button, action, mods);
 #endif
 }
 
-extern "C" SURGE_MODULE_EXPORT void mouse_scroll_event(GLFWwindow *, double xoffset,
-                                                       double yoffset) noexcept {
+extern "C" SURGE_MODULE_EXPORT void mouse_scroll_event(double xoffset, double yoffset) noexcept {
 #ifdef SURGE_BUILD_TYPE_Debug
   surge::imgui::register_mouse_scroll_callback(xoffset, yoffset);
 #endif
@@ -430,61 +416,6 @@ void s2048::new_game() noexcept {
 
   pieces::create_random(globals::pd);
   pieces::create_random(globals::pd);
-}
-
-auto s2048::bind_callbacks() noexcept -> int {
-  using namespace surge;
-
-  log_info("Binding interaction callbacks");
-
-  auto status{window::set_key_callback(keyboard_event)};
-
-  if (status.has_value()) {
-    log_error("Unable to bind keyboard event callback");
-    return static_cast<int>(status.value());
-  }
-
-  status = window::set_mouse_button_callback(mouse_button_event);
-
-  if (status.has_value()) {
-    log_error("Unable to bind mouse button event callback.");
-    return static_cast<int>(status.value());
-  }
-
-  status = window::set_mouse_scroll_callback(mouse_scroll_event);
-
-  if (status.has_value()) {
-    log_error("Unable to bind mouse scroll event callback");
-    return static_cast<int>(status.value());
-  }
-
-  return 0;
-}
-
-auto s2048::unbind_callbacks() noexcept -> int {
-  using namespace surge;
-
-  log_info("Unbinding interaction callbacks");
-
-  auto status{window::set_key_callback(nullptr)};
-
-  if (status.has_value()) {
-    log_error("Unable to bind keyboard event callback");
-  }
-
-  status = window::set_mouse_button_callback(nullptr);
-
-  if (status.has_value()) {
-    log_error("Unable to bind mouse button event callback.");
-  }
-
-  status = window::set_mouse_scroll_callback(nullptr);
-
-  if (status.has_value()) {
-    log_error("Unable to bind mouse scroll event callback");
-  }
-
-  return 0;
 }
 
 #ifdef SURGE_BUILD_TYPE_Debug
