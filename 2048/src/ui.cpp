@@ -31,14 +31,14 @@ auto s2048::ui::button(surge::i32 id, ui_state &state, draw_data &dd, sdb_t &sdb
 
   // Display the up or down skin when the button is held
   if (id == state.active) {
-    const auto model{sprite::place(dd.pos, dd.scale, dd.z)};
-    sdb.add(bs.handle_press, model, dd.alpha);
+    const auto model{sprite_database::place_sprite(dd.pos, dd.scale, dd.z)};
+    gl_atom::sprite_database::add(sdb, bs.handle_press, model, dd.alpha);
   } else if (id == state.hot) {
-    const auto model{sprite::place(dd.pos, dd.scale, dd.z)};
-    sdb.add(bs.handle_select, model, dd.alpha);
+    const auto model{sprite_database::place_sprite(dd.pos, dd.scale, dd.z)};
+    gl_atom::sprite_database::add(sdb, bs.handle_select, model, dd.alpha);
   } else {
-    const auto model{sprite::place(dd.pos, dd.scale, dd.z)};
-    sdb.add(bs.handle_release, model, dd.alpha);
+    const auto model{sprite_database::place_sprite(dd.pos, dd.scale, dd.z)};
+    gl_atom::sprite_database::add(sdb, bs.handle_release, model, dd.alpha);
   }
 
   return bttn_result;

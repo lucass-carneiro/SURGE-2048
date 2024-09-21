@@ -38,7 +38,8 @@ extern "C" SURGE_MODULE_EXPORT auto on_load() noexcept -> int {
   globals::tdb = gl_atom::texture::database::create(128);
 
   // Sprite database
-  auto sdb{gl_atom::sprite::database::create(128)};
+  gl_atom::sprite_database::database_create_info sdb_ci{128, 3};
+  auto sdb{gl_atom::sprite_database::create(sdb_ci)};
   if (!sdb) {
     log_error("Unable to create sprite database");
     return static_cast<int>(sdb.error());
@@ -143,7 +144,7 @@ extern "C" SURGE_MODULE_EXPORT auto on_unload() noexcept -> int {
   globals::txd.ten.destroy();
 
   globals::pv_ubo.destroy();
-  globals::sdb.destroy();
+  gl_atom::sprite_database::destroy(globals::sdb);
 
   globals::tdb.destroy();
 
@@ -159,7 +160,7 @@ extern "C" SURGE_MODULE_EXPORT auto draw() noexcept -> int {
   globals::pv_ubo.bind_to_location(2);
 
   // Sprite and text pass
-  globals::sdb.draw();
+  surge::gl_atom::sprite_database::draw(globals::sdb);
   globals::txd.txb.draw(glm::vec4{1.0f});
 
   // Debug UI pass
@@ -178,7 +179,7 @@ extern "C" SURGE_MODULE_EXPORT auto update(double) noexcept -> int {
   using namespace surge::gl_atom;
 
   // Database resets
-  globals::sdb.reset();
+  gl_atom::sprite_database::begin_add(globals::sdb);
   globals::txd.txb.reset();
 
   // Background Texture handles
@@ -186,8 +187,8 @@ extern "C" SURGE_MODULE_EXPORT auto update(double) noexcept -> int {
 
   // Background model
   const auto dims{window::get_dims()};
-  const auto bckg_model{sprite::place(glm::vec2{0.0f}, dims, 0.1f)};
-  globals::sdb.add(bckg_handle, bckg_model, 1.0);
+  const auto bckg_model{sprite_database::place_sprite(glm::vec2{0.0f}, dims, 0.1f)};
+  sprite_database::add(globals::sdb, bckg_handle, bckg_model, 1.0);
 
   // New Game button
   static ui::ui_state uist{-1, -1};

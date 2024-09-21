@@ -38,8 +38,8 @@ static const auto slot_delta{slot_coords[1][0] - slot_coords[0][0]};
 
 } // namespace globals
 
-auto s2048::pieces::create_piece(pieces_data &pd, surge::u16 value, surge::u8 slot) noexcept
-    -> surge::u8 {
+auto s2048::pieces::create_piece(pieces_data &pd, surge::u16 value,
+                                 surge::u8 slot) noexcept -> surge::u8 {
 #if defined(SURGE_BUILD_TYPE_Profile) && defined(SURGE_ENABLE_TRACY)
   ZoneScopedN("s2048::pieces::create_piece");
 #endif
@@ -80,8 +80,8 @@ void s2048::pieces::delete_piece(pieces_data &pd, surge::u8 piece_id) noexcept {
   }
 }
 
-template <typename T, typename U> static auto has_value(const T value, const U &collection)
-    -> bool {
+template <typename T, typename U>
+static auto has_value(const T value, const U &collection) -> bool {
 #if defined(SURGE_BUILD_TYPE_Profile) && defined(SURGE_ENABLE_TRACY)
   ZoneScopedN("s2048::pieces::has_value");
 #endif
@@ -141,8 +141,8 @@ auto s2048::pieces::idle(const pieces_data &pd) noexcept -> bool {
   return true;
 }
 
-auto s2048::pieces::game_over(const pieces_data &pd, float ww, float wh, txd_t &txd) noexcept
-    -> bool {
+auto s2048::pieces::game_over(const pieces_data &pd, float ww, float wh,
+                              txd_t &txd) noexcept -> bool {
   // Reconstruct the board values in a 2D array
   std::array<std::array<surge::u16, 4>, 4> board_values{
       {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}};
@@ -957,8 +957,8 @@ void s2048::pieces::remove_stale(piece_id_queue_t &stale_pieces, pieces_data &pd
   }
 }
 
-auto s2048::pieces::value_to_texture_handle(const tdb_t &tdb, surge::u16 value) noexcept
-    -> GLuint64 {
+auto s2048::pieces::value_to_texture_handle(const tdb_t &tdb,
+                                            surge::u16 value) noexcept -> GLuint64 {
   static const auto handle_2{tdb.find("resources/pieces_2.png").value_or(0)};
   static const auto handle_4{tdb.find("resources/pieces_4.png").value_or(0)};
   static const auto handle_8{tdb.find("resources/pieces_8.png").value_or(0)};
@@ -1010,8 +1010,8 @@ void s2048::pieces::add_sprites_to_database(const tdb_t &tdb, sdb_t &sdb,
   for (const auto &pos_elm : pd.positions) {
     const auto [id, pos] = pos_elm;
     const auto handle{value_to_texture_handle(tdb, pd.current_values[id])};
-    const auto model{sprite::place(pos, glm::vec2{105.0f}, 0.2f)};
-    sdb.add(handle, model, 1.0f);
+    const auto model{sprite_database::place_sprite(pos, glm::vec2{105.0f}, 0.2f)};
+    gl_atom::sprite_database::add(sdb, handle, model, 1.0f);
   }
 }
 

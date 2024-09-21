@@ -8,7 +8,7 @@ namespace s2048 {
 using pvubo_t = surge::gl_atom::pv_ubo::buffer;
 
 using tdb_t = surge::gl_atom::texture::database;
-using sdb_t = surge::gl_atom::sprite::database;
+using sdb_t = surge::gl_atom::sprite_database::database;
 
 struct txd_t {
   surge::gl_atom::text_engine ten{};
