@@ -1011,7 +1011,7 @@ void s2048::pieces::add_sprites_to_database(const tdb_t &tdb, sdb_t &sdb,
     const auto [id, pos] = pos_elm;
     const auto handle{value_to_texture_handle(tdb, pd.current_values[id])};
     const auto model{sprite_database::place_sprite(pos, glm::vec2{105.0f}, 0.2f)};
-    gl_atom::sprite_database::add(sdb, handle, model, 1.0f);
+    gl_atom::sprite_database::add(sdb, handle, model);
   }
 }
 

@@ -188,7 +188,7 @@ extern "C" SURGE_MODULE_EXPORT auto update(double) noexcept -> int {
   // Background model
   const auto dims{window::get_dims()};
   const auto bckg_model{sprite_database::place_sprite(glm::vec2{0.0f}, dims, 0.1f)};
-  sprite_database::add(globals::sdb, bckg_handle, bckg_model, 1.0);
+  sprite_database::add(globals::sdb, bckg_handle, bckg_model);
 
   // New Game button
   static ui::ui_state uist{-1, -1};
