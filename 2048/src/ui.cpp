@@ -1,25 +1,25 @@
 #include "ui.hpp"
 
-auto s2048::ui::button(surge::i32 id, ui_state &state, draw_data &dd, sdb_t &sdb,
-                       const button_skin &bs) noexcept -> bool {
+auto s2048::ui::button(surge::window::window_t w, surge::i32 id, ui_state &state, draw_data &dd,
+                       sdb_t &sdb, const button_skin &bs) noexcept -> bool {
   using namespace surge;
   using namespace surge::gl_atom;
 
   const glm::vec4 widget_rect{dd.pos[0], dd.pos[1], dd.scale[0], dd.scale[1]};
 
-  const auto mouse_in_widget{point_in_rect(window::get_cursor_pos(), widget_rect)};
+  const auto mouse_in_widget{point_in_rect(window::get_cursor_pos(w), widget_rect)};
 
   bool bttn_result{false};
 
   if (id == state.active) {
-    if (window::get_mouse_button(GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
+    if (window::get_mouse_button(w, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
       if (id == state.hot) {
         bttn_result = true;
       }
       state.active = -1;
     }
   } else if (id == state.hot) {
-    if (window::get_mouse_button(GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && mouse_in_widget) {
+    if (window::get_mouse_button(w, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && mouse_in_widget) {
       state.active = id;
     }
   }

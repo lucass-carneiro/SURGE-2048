@@ -16,8 +16,6 @@ project(
 
 set(
   SURGE_MODULE_2048_HEADER_LIST
-  "${SurgeCore_SOURCE_DIR}/include/surge_core.hpp"
-
   "${PROJECT_SOURCE_DIR}/include/pieces.hpp"
   "${PROJECT_SOURCE_DIR}/include/type_aliases.hpp"
   "${PROJECT_SOURCE_DIR}/include/ui.hpp"

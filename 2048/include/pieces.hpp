@@ -1,7 +1,6 @@
 #ifndef SURGE_MODULE_2048_PIECES
 #define SURGE_MODULE_2048_PIECES
 
-#include "surge_core.hpp"
 #include "type_aliases.hpp"
 
 #include <array>

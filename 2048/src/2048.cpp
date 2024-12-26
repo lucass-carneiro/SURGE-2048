@@ -8,6 +8,8 @@
 #  include "debug_window.hpp"
 #endif
 
+#include "sc_glm_includes.hpp"
+
 namespace globals {
 
 static s2048::tdb_t tdb{};      // NOLINT
@@ -30,7 +32,7 @@ static bool show_debug_window{true}; // NOLINT
 
 } // namespace globals
 
-extern "C" SURGE_MODULE_EXPORT auto on_load() noexcept -> int {
+extern "C" SURGE_MODULE_EXPORT auto gl_on_load(surge::window::window_t w) -> int {
   using namespace s2048;
   using namespace surge;
 
@@ -47,7 +49,7 @@ extern "C" SURGE_MODULE_EXPORT auto on_load() noexcept -> int {
   globals::sdb = *sdb;
 
   // Text Engine
-  const auto ten_result{gl_atom::text_engine::create()};
+  const auto ten_result{gl_atom::text::text_engine::create()};
   if (ten_result) {
     globals::txd.ten = *ten_result;
   } else {
@@ -69,7 +71,7 @@ extern "C" SURGE_MODULE_EXPORT auto on_load() noexcept -> int {
     return static_cast<int>(error::freetype_null_face);
   }
 
-  const auto glyph_cache{gl_atom::glyph_cache::create(*face)};
+  const auto glyph_cache{gl_atom::text::glyph_cache::create(*face)};
   if (!glyph_cache) {
     log_error("Unable to create glyph cache for dejavu_sans_bold");
     return static_cast<int>(glyph_cache.error());
@@ -79,7 +81,7 @@ extern "C" SURGE_MODULE_EXPORT auto on_load() noexcept -> int {
   globals::txd.gc.make_resident();
 
   // Text Buffer
-  const auto text_buffer{gl_atom::text_buffer::create(540)};
+  const auto text_buffer{gl_atom::text::text_buffer::create(540)};
   if (!text_buffer) {
     log_error("Unable to create text buffer");
     return static_cast<int>(text_buffer.error());
@@ -87,7 +89,7 @@ extern "C" SURGE_MODULE_EXPORT auto on_load() noexcept -> int {
   globals::txd.txb = *text_buffer;
 
   // Initialize global 2D projection matrix and view matrix
-  const auto dims{window::get_dims()};
+  const auto dims{window::get_dims(w)};
   const auto projection{glm::ortho(0.0f, dims[0], dims[1], 0.0f, 0.0f, 1.0f)};
   const auto view{glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f),
                               glm::vec3(0.0f, 1.0f, 0.0f))};
@@ -136,7 +138,7 @@ extern "C" SURGE_MODULE_EXPORT auto on_load() noexcept -> int {
   return 0;
 }
 
-extern "C" SURGE_MODULE_EXPORT auto on_unload() noexcept -> int {
+extern "C" SURGE_MODULE_EXPORT auto gl_on_unload(surge::window::window_t) -> int {
   using namespace surge;
 
   globals::txd.txb.destroy();
@@ -156,7 +158,7 @@ extern "C" SURGE_MODULE_EXPORT auto on_unload() noexcept -> int {
   return 0;
 }
 
-extern "C" SURGE_MODULE_EXPORT auto draw() noexcept -> int {
+extern "C" SURGE_MODULE_EXPORT auto gl_draw(surge::window::window_t) -> int {
   globals::pv_ubo.bind_to_location(2);
 
   // Sprite and text pass
@@ -172,7 +174,7 @@ extern "C" SURGE_MODULE_EXPORT auto draw() noexcept -> int {
   return 0;
 }
 
-extern "C" SURGE_MODULE_EXPORT auto update(double) noexcept -> int {
+extern "C" SURGE_MODULE_EXPORT auto gl_update(surge::window::window_t w, double) -> int {
   using std::snprintf;
   using namespace surge;
   using namespace s2048;
@@ -186,7 +188,7 @@ extern "C" SURGE_MODULE_EXPORT auto update(double) noexcept -> int {
   static const auto bckg_handle{globals::tdb.find("resources/board.png").value_or(0)};
 
   // Background model
-  const auto dims{window::get_dims()};
+  const auto dims{window::get_dims(w)};
   const auto bckg_model{sprite_database::place_sprite(glm::vec2{0.0f}, dims, 0.1f)};
   sprite_database::add(globals::sdb, bckg_handle, bckg_model);
 
@@ -201,7 +203,7 @@ extern "C" SURGE_MODULE_EXPORT auto update(double) noexcept -> int {
   ui::draw_data dd{glm::vec2{358.0f, 66.0f}, glm::vec2{138.0f, 40.0f}, 0.2f, 1.0f};
   ui::button_skin skins{new_game_release_handle, new_game_release_handle, new_game_press_handle};
 
-  if (ui::button(__COUNTER__, uist, dd, globals::sdb, skins)) {
+  if (ui::button(w, __COUNTER__, uist, dd, globals::sdb, skins)) {
     new_game();
   }
 
@@ -318,7 +320,8 @@ extern "C" SURGE_MODULE_EXPORT auto update(double) noexcept -> int {
   return 0;
 }
 
-extern "C" SURGE_MODULE_EXPORT void keyboard_event(int key, int, int action, int) noexcept {
+extern "C" SURGE_MODULE_EXPORT void gl_keyboard_event(surge::window::window_t, int key, int,
+                                                      int action, int) {
 #if defined(SURGE_BUILD_TYPE_Profile) && defined(SURGE_ENABLE_TRACY)
   ZoneScopedN("s2048::keyboard_event");
 #endif
@@ -373,19 +376,21 @@ extern "C" SURGE_MODULE_EXPORT void keyboard_event(int key, int, int action, int
 #endif
 }
 
-extern "C" SURGE_MODULE_EXPORT void mouse_button_event(int button, int action, int mods) noexcept {
+extern "C" SURGE_MODULE_EXPORT void gl_mouse_button_event(surge::window::window_t, int button,
+                                                          int action, int mods) {
 #ifdef SURGE_BUILD_TYPE_Debug
   surge::imgui::register_mouse_callback(button, action, mods);
 #endif
 }
 
-extern "C" SURGE_MODULE_EXPORT void mouse_scroll_event(double xoffset, double yoffset) noexcept {
+extern "C" SURGE_MODULE_EXPORT void gl_mouse_scroll_event(surge::window::window_t, double xoffset,
+                                                          double yoffset) {
 #ifdef SURGE_BUILD_TYPE_Debug
   surge::imgui::register_mouse_scroll_callback(xoffset, yoffset);
 #endif
 }
 
-void s2048::new_game() noexcept {
+void s2048::new_game() {
 #if defined(SURGE_BUILD_TYPE_Profile) && defined(SURGE_ENABLE_TRACY)
   ZoneScopedN("s2048::new_game");
 #endif
@@ -419,7 +424,7 @@ void s2048::new_game() noexcept {
 }
 
 #ifdef SURGE_BUILD_TYPE_Debug
-auto s2048::state_to_str(game_state s) noexcept -> const char * {
+auto s2048::state_to_str(game_state s) -> const char * {
   switch (s) {
   case idle:
     return "idle";

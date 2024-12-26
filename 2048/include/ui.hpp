@@ -1,7 +1,7 @@
 #ifndef SURGE_2048_UI_HPP
 #define SURGE_2048_UI_HPP
 
-#include "surge_core.hpp"
+#include "sc_window.hpp"
 #include "type_aliases.hpp"
 
 namespace s2048::ui {
@@ -43,7 +43,7 @@ struct button_skin {
   GLuint64 handle_press;
 };
 
-auto button(surge::i32 id, ui_state &state, draw_data &dd, sdb_t &sdb,
+auto button(surge::window::window_t w, surge::i32 id, ui_state &state, draw_data &dd, sdb_t &sdb,
             const button_skin &bs) noexcept -> bool;
 
 } // namespace s2048::ui
