@@ -9,6 +9,7 @@
 #endif
 
 #include "sc_glm_includes.hpp"
+#include "sc_opengl/atoms/imgui.hpp"
 
 namespace globals {
 
@@ -27,7 +28,8 @@ static surge::u32 current_score{0}; // NOLINT
 static surge::u32 best_score{0};    // NOLINT
 
 #ifdef SURGE_BUILD_TYPE_Debug
-static bool show_debug_window{true}; // NOLINT
+static ImGuiContext *imgui_ctx{nullptr}; // NOLINT
+static bool show_debug_window{true};     // NOLINT
 #endif
 
 } // namespace globals
@@ -132,7 +134,8 @@ extern "C" SURGE_MODULE_EXPORT auto gl_on_load(surge::window::window_t w) -> int
 
   // Debug window
 #ifdef SURGE_BUILD_TYPE_Debug
-  imgui::gl::create(imgui::create_config{});
+  globals::imgui_ctx = gl_atom::imgui::create(w, imgui::create_config{});
+  ImGui::SetCurrentContext(globals::imgui_ctx);
 #endif
 
   return 0;
@@ -152,13 +155,13 @@ extern "C" SURGE_MODULE_EXPORT auto gl_on_unload(surge::window::window_t) -> int
 
   // Debug window
 #ifdef SURGE_BUILD_TYPE_Debug
-  imgui::gl::destroy();
+  gl_atom::imgui::destroy(globals::imgui_ctx);
 #endif
 
   return 0;
 }
 
-extern "C" SURGE_MODULE_EXPORT auto gl_draw(surge::window::window_t) -> int {
+extern "C" SURGE_MODULE_EXPORT auto gl_draw(surge::window::window_t w) -> int {
   globals::pv_ubo.bind_to_location(2);
 
   // Sprite and text pass
@@ -167,7 +170,7 @@ extern "C" SURGE_MODULE_EXPORT auto gl_draw(surge::window::window_t) -> int {
 
   // Debug UI pass
 #ifdef SURGE_BUILD_TYPE_Debug
-  s2048::debug_window::draw(globals::show_debug_window, globals::tdb, globals::sdb, globals::pd,
+  s2048::debug_window::draw(w, globals::show_debug_window, globals::tdb, globals::sdb, globals::pd,
                             globals::spc, globals::stq);
 #endif
 
@@ -376,17 +379,17 @@ extern "C" SURGE_MODULE_EXPORT void gl_keyboard_event(surge::window::window_t, i
 #endif
 }
 
-extern "C" SURGE_MODULE_EXPORT void gl_mouse_button_event(surge::window::window_t, int button,
+extern "C" SURGE_MODULE_EXPORT void gl_mouse_button_event(surge::window::window_t w, int button,
                                                           int action, int mods) {
 #ifdef SURGE_BUILD_TYPE_Debug
-  surge::imgui::register_mouse_callback(button, action, mods);
+  surge::imgui::mouse_callback(w, button, action, mods);
 #endif
 }
 
-extern "C" SURGE_MODULE_EXPORT void gl_mouse_scroll_event(surge::window::window_t, double xoffset,
+extern "C" SURGE_MODULE_EXPORT void gl_mouse_scroll_event(surge::window::window_t w, double xoffset,
                                                           double yoffset) {
 #ifdef SURGE_BUILD_TYPE_Debug
-  surge::imgui::register_mouse_scroll_callback(xoffset, yoffset);
+  surge::imgui::mouse_scroll_callback(w, xoffset, yoffset);
 #endif
 }
 

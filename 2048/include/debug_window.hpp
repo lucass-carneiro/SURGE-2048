@@ -7,8 +7,9 @@
 
 namespace s2048::debug_window {
 
-void draw(bool &show, const tdb_t &tdb, const sdb_t &sdb, const pieces::pieces_data &pd,
-          const pieces::piece_id_queue_t &spc, const state_queue &stq) noexcept;
+void draw(surge::window::window_t w, bool &show, const tdb_t &tdb, const sdb_t &sdb,
+          const pieces::pieces_data &pd, const pieces::piece_id_queue_t &spc,
+          const state_queue &stq) noexcept;
 
 } // namespace s2048::debug_window
 
