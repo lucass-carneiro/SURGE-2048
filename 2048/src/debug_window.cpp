@@ -261,7 +261,7 @@ static void main_window(surge::window::window_t w, const s2048::tdb_t &tdb, cons
         sdb_window_open = true;
       }
 
-      EndMenu();
+      ImGui::EndMenu();
     }
 
     if (BeginMenu("Pieces")) {
@@ -277,7 +277,7 @@ static void main_window(surge::window::window_t w, const s2048::tdb_t &tdb, cons
         stq_window_open = true;
       }
 
-      EndMenu();
+      ImGui::EndMenu();
     }
 
     if (BeginMenu("Module")) {
@@ -285,7 +285,7 @@ static void main_window(surge::window::window_t w, const s2048::tdb_t &tdb, cons
         window::set_should_close(w, true);
       }
 
-      EndMenu();
+      ImGui::EndMenu();
     }
 
     EndMainMenuBar();
